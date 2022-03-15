@@ -1,0 +1,133 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iomanip>
+#include <numeric>
+#include <random>
+#include <chrono>
+
+//Global constants
+const int NUM_COLS  = 13;
+const int NUM_ROWS  = 4;
+const int NUM_CARDS = 52;
+
+//Create Function prototypes for card loading and shuffling deck of cards
+void unwrap(std::vector<int>&);
+void shuffle(std::vector<int>&);
+void printCards(const std::vector<int>&);
+
+//Function for dealing cards to players
+void deal(std::vector<std::vector<int>>&, const std::vector<int>&);
+void showHands(const std::vector<std::vector<int>>&);
+
+
+int main()
+{
+   //Declare vector to hold a deck of cards
+   std::vector<int> deck;
+
+   std::cout << "The deck before shuffling:\n";
+   unwrap(deck);
+   printCards(deck);
+
+   std::cout << "\nThe deck after shuffling:\n";
+   shuffle(deck);
+   printCards(deck);
+
+   //Declare our 2D Array for dealing cards to players
+   std::vector<std::vector<int>> players(NUM_ROWS, std::vector<int>(NUM_COLS, 0));
+
+   std::cout << "\nbefore the cards have been dealt:\n";
+   showHands(players);
+
+   //The contents of our deal cards function are
+   std::cout << "\nAfter the cards have been dealt:\n";
+   deal(players, deck);
+   showHands(players);
+}
+
+//Function definitions that load cards
+void unwrap(std::vector<int> &deck)
+{
+   //Load vector with ints from 0 to 51
+   for (int i = 1; i <= NUM_CARDS; i++)
+   {
+      deck.push_back(i);
+   }
+}
+
+// shuffles the deck
+void shuffle(std::vector<int> &deck)
+{
+   // if you have to use random_shuffle, seed the C random generator using the current time
+   // to get random numbers each run
+   // std::srand(std::time(NULL));
+
+   // without initializing the C library rand function random_shuffle will always give the same numbers
+   // random_shuffle was deprecated in C++14 and removed in C++17
+   // random_shuffle(deck.begin(), deck.end());
+
+   // learn to use the C++ random engines and algorithm
+   
+   // get a seed based on the current time
+   unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
+   
+   // create a random engine
+   std::default_random_engine URNG;
+   
+   // seed the engine
+   URNG.seed(seed);
+   
+   // shuffle the cards
+   std::shuffle(deck.begin(), deck.end(), URNG);
+}
+
+void printCards(const std::vector<int>& deck)
+{
+   /*for (int j = 0; j<deck.size(); j++)
+   {
+      cout << deck[j] << '\t';
+   }*/
+   
+   // ranged based for loops makes it harder to go out of bounds
+   for (const auto itr : deck)
+   {
+      std::cout << itr << '\t';
+   }
+   std::cout << '\n';
+
+   // another for loop that is hard to go out of bounds/
+   /*for (auto itr = deck.cbegin(); itr != deck.cend(); itr++)
+   {
+      std::cout << *itr << '\t';
+   }
+   std::cout << '\n';*/
+}
+
+void deal(std::vector<std::vector<int>>& players, const std::vector<int>& deck)
+{
+   int card_count = 0;
+   
+   // deal one card to each player in order, repeat until the entire deck is dealt
+   for (int cols = 0; cols < NUM_COLS; cols++)
+   {
+      for (int rows = 0; rows < NUM_ROWS; rows++)
+      {
+         players[rows][cols] = deck[card_count];
+         card_count++;
+      }
+   }
+}
+
+void showHands(const std::vector<std::vector<int>>& players)
+{
+   for (int rows = 0; rows < NUM_ROWS; rows++)
+   {
+      std::cout << "Player " << rows + 1 << ": ";
+      for (int cols = 0; cols < NUM_COLS; cols++)
+      {
+         std::cout << players[rows][cols] << ' ';
+      }
+      std::cout << '\n';
+   }
+}
